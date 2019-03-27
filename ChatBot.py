@@ -36,11 +36,15 @@ conversationals = [
         ]
     ],
     [r'(.*)(how fun)|( fun )|(rating)|(.*)',
-
-     [
-         "{0}",
-     ]
-     ]
+         [
+             "{0}",
+         ]
+    ],
+    [r'(.*)(time)|(spend)|(how long)|(long)|(workload)|(how much)|(work)(.*)',
+         [
+             "{0}",
+         ]
+    ]
 ]
 
 
@@ -86,13 +90,16 @@ class ChatBot:
             arg = 'difficulty'
         elif any(item in indicator for item in ['fun','rating','good']):
             arg = 'rating'
+        elif any(item in indicator for item in ['time','how long','spend','long','workload','work']):
+            arg = 'workload'
         else:
             arg = 'really'
 
         switcher = {
             'difficulty': get_difficulty(class_id, self.reviews),
             'rating': get_rating(class_id, self.reviews),
-            'really': get_response()
+            'really': get_response(),
+            'workload': get_workload(class_id, self.reviews),
         }
 
         func = switcher.get(arg)

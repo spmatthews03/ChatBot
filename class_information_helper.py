@@ -28,3 +28,19 @@ def get_rating(class_id, reviews):
 
 def get_response():
     return "Yes, like I said."
+
+
+def get_workload(class_id, reviews):
+    total = 0.0
+    num_of_reviews = 0
+    for review in reviews:
+        if class_id in review['course']:
+            total = total+int(review['workload'])
+            num_of_reviews = num_of_reviews + 1
+    workload = float('%.2f'%(total / num_of_reviews))
+    if workload < 15:
+        return "{first} isn't too demanding. The workload is {second}.".format(first=class_id,second=workload)
+    elif 15 <= workload < 20:
+        return "A workload of {first} isn't too bad, Not too many hours each week for {second}.".format(first=workload,second=class_id)
+    else:
+        return "{first}... I repeat {first}... That's your workload if you take {second}".format(first=workload, second=class_id)
