@@ -65,7 +65,8 @@ class ChatBot:
         return ' '.join(tokens)
 
     def analyze_question(self, statement):
-        if self.extract_class(statement):
+        self.extract_class(statement)
+        if self.classID is not None:
             for pattern, responses in conversationals:
                 match = re.search(pattern.lower(), statement.lower().rstrip(".!"))
                 if match:
@@ -78,7 +79,6 @@ class ChatBot:
         for i, token in enumerate(tokens):
             if token[-4:].isdigit():
                 self.classID = token[-4:]
-                return True
 
 
     def get_class_info(self, class_id, indicator):
@@ -86,10 +86,13 @@ class ChatBot:
             arg = 'difficulty'
         elif any(item in indicator for item in ['fun','rating','good']):
             arg = 'rating'
+        else:
+            arg = 'really'
 
         switcher = {
             'difficulty': get_difficulty(class_id, self.reviews),
-            'rating': get_rating(class_id, self.reviews)
+            'rating': get_rating(class_id, self.reviews),
+            'really': get_response()
         }
 
         func = switcher.get(arg)
