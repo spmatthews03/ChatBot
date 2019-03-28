@@ -2,6 +2,7 @@ import random
 import re
 import nltk
 import json
+import string
 import argparse
 from nltk.chat.util import Chat, reflections
 from class_information_helper import *
@@ -35,7 +36,7 @@ conversationals = [
          "Depends, do you think {0}/5 is manageable?"
         ]
     ],
-    [r'(.*)(how fun)|( fun )|(rating)|(.*)',
+    [r'(.*)(how fun)|( fun )|(rating)|( like )|(.*)',
          [
              "{0}",
          ]
@@ -44,7 +45,17 @@ conversationals = [
          [
              "{0}",
          ]
-    ]
+    ],
+    [r'(.*)(project)|( groups )|(group)(.*)',
+        [
+            "{0}",
+        ]
+    ],
+    [r'(.*)(test)|(exam)|(proctortrack)(.*)',
+        [
+            "{0}",
+        ]
+    ],
 ]
 
 
@@ -81,29 +92,25 @@ class ChatBot:
     def extract_class(self, statement):
         tokens = statement.lower().split()
         for i, token in enumerate(tokens):
+            token = token.translate(str.maketrans('', '', string.punctuation))
             if token[-4:].isdigit():
                 self.classID = token[-4:]
 
 
     def get_class_info(self, class_id, indicator):
         if any(item in indicator for item in ['easy','hard','difficult','challenging','rigorous']):
-            arg = 'difficulty'
+            return get_difficulty(class_id, self.reviews)
         elif any(item in indicator for item in ['fun','rating','good']):
-            arg = 'rating'
+            return get_rating(class_id, self.reviews)
         elif any(item in indicator for item in ['time','how long','spend','long','workload','work']):
-            arg = 'workload'
+            return get_workload(class_id, self.reviews)
+        elif any(item in indicator for item in ['test','exam','proctor']):
+            return get_exam_info(class_id, self.reviews)
+        elif any(item in indicator for item in ['projects','groups','group']):
+            return get_project_info(class_id, self.reviews)
         else:
-            arg = 'really'
+            return respond()
 
-        switcher = {
-            'difficulty': get_difficulty(class_id, self.reviews),
-            'rating': get_rating(class_id, self.reviews),
-            'really': get_response(),
-            'workload': get_workload(class_id, self.reviews),
-        }
-
-        func = switcher.get(arg)
-        return func
 
 
 

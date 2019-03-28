@@ -1,46 +1,42 @@
-
-
+from responses import *
 def get_difficulty(class_id, reviews):
-    total = 0.0
-    num_of_reviews = 0
-    for review in reviews:
-        if class_id in review['course']:
-            total = total+int(review['difficulty'])
-            num_of_reviews = num_of_reviews + 1
-    return float('%.2f'%(total / num_of_reviews))
+    return get_response('difficulty', class_id, get_average('difficulty', class_id, reviews))
 
 
 def get_rating(class_id, reviews):
-    total = 0.0
-    num_of_reviews = 0
-    for review in reviews:
-        if class_id in review['course']:
-            total = total+int(review['rating'])
-            num_of_reviews = num_of_reviews + 1
-    rating = float('%.2f'%(total / num_of_reviews))
-    if rating < 2:
-        return "This class isn't a favorite. People only give if a {0} out of 5.".format(rating)
-    elif 2 <= rating < 4:
-        return "{first} has an ok rating. It's rated {second} out of 5.".format(first=class_id, second=rating)
-    else:
-        return "{first}/5!!!! High rating! I'd recommend taking it!".format(first=class_id, second=rating)
+    return get_response('rating', class_id, get_average('rating', class_id, reviews))
 
 
-def get_response():
-    return "Yes, like I said."
+def respond():
+    return regular_response()
 
 
 def get_workload(class_id, reviews):
+    return get_response('workload', class_id, get_average('workload', class_id, reviews))
+
+
+def get_exam_info(class_id, reviews):
+    return get_response('tests', class_id, get_average('tests', class_id, reviews))
+
+
+def get_project_info(class_id, reviews):
+    try:
+        group_projects = get_average('groupProjects', class_id, reviews)
+        projects = get_average('projects', class_id, reviews)
+        return get_response('projects', class_id, projects, group_projects)
+    except:
+        return 'There were no reviews indicating projects'
+
+def get_average(indicator, class_id, reviews):
     total = 0.0
     num_of_reviews = 0
     for review in reviews:
-        if class_id in review['course']:
-            total = total+int(review['workload'])
+        if class_id in review['course'] and indicator in review.keys() and not isinstance(review[indicator], str):
+            total = total + int(review[indicator])
             num_of_reviews = num_of_reviews + 1
-    workload = float('%.2f'%(total / num_of_reviews))
-    if workload < 15:
-        return "{first} isn't too demanding. The workload is {second}.".format(first=class_id,second=workload)
-    elif 15 <= workload < 20:
-        return "A workload of {first} isn't too bad, Not too many hours each week for {second}.".format(first=workload,second=class_id)
+    if num_of_reviews != 0:
+        return float('%.2f'%(total / num_of_reviews))
     else:
-        return "{first}... I repeat {first}... That's your workload if you take {second}".format(first=workload, second=class_id)
+        return None
+
+
